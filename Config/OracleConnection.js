@@ -1,15 +1,17 @@
 require("dotenv").config();
 const oracledb = require("oracledb");
 
-const connectionToOracleDB = oracledb.createPool({
-  user: process.env.ORACLE_USER,
-  password: process.env.ORACLE_PASSWORD,
-  connectionString: process.env.ORACLE_CONNECTIONSTRING,
-});
-
 async function getOracleDBConnection() {
   try {
-    return await connectionToOracleDB;
+    const pool = await oracledb.createPool({
+      user: process.env.ORACLE_USER,
+      password: process.env.ORACLE_PASSWORD,
+      connectionString: process.env.ORACLE_CONNECTIONSTRING,
+      poolMin:0,
+      poolMax:22
+    });
+    const connection = await pool.getConnection();
+    return connection;
   } catch (error) {
     console.error(
       `Error Establishing Oracle Database ${process.env.ORACLE_NAME} connection`
@@ -27,7 +29,6 @@ async function closeOracleDBConnection(oracledbconnection, activity) {
 }
 
 module.exports = {
-  connectionToOracleDB,
   getOracleDBConnection,
   closeOracleDBConnection,
 };
